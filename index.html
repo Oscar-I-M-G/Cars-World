@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>World editor</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <h1> World Editor</h1>
+        <canvas id="myCanvas"></canvas>
+        <div id="controls">
+            <button onclick="addRandomPoint()">Add Point</button>
+        </div>
+
+        <script src="js/math/graph.js"></script>
+        <script src="js/primitives/point.js"></script>
+        <script src="js/primitives/segment.js"></script>
+        <script>
+            function addRandomPoint(){
+                const succes = graph.tryAddPoint(
+                    new Point(
+                        Math.random() * myCanvas.width,
+                        Math.random() * myCanvas.height
+                    )
+                );
+                context.clearRect(0,0,myCanvas.width,myCanvas.height);
+                graph.draw(context);
+                console.log(success);
+            }
+    
+
+
+            myCanvas.width = 600;
+            myCanvas.height = 600;
+            const context = myCanvas.getContext("2d");
+
+            //testing points
+            const p1 = new Point(200,200);
+            const p2 = new Point(300,220);
+            const p3 = new Point(320,20);
+            const p4 = new Point(30,220);
+            //testing segments
+            const s1 = new Segment(p1, p2);
+            const s2 = new Segment(p1, p4);
+            const s3 = new Segment(p1, p3);
+            const s4 = new Segment (p2,p3);
+            const graph = new Graph([p1,p2,p3,p4],[s1,s2,s3,s4]);
+            graph.draw(context);
+        </script>
+    </body>
+</html>
