@@ -8,99 +8,44 @@
         <h1> World Editor</h1>
         <canvas id="myCanvas"></canvas>
         <div id="controls">
-            <button onclick="addRandomPoint()">Add Point</button>
-            <button onclick="addRandomSegment()">Add Segment</button>
-            <button  onclick="removeRandomPoint()">Remove Point</button>
-            <button  onclick="removeRandomSegment()">Remove Segment</button>
-            <button onclick="removeAll()"> Remove All</button>
+            <button onclick="dispose()">🗑️</button>
+            <button onclick="save()">💾</button>
         </div>
 
         <script src="js/math/graph.js"></script>
         <script src="js/math/utils.js"></script>
         <script src="js/graphEditor.js"></script>
+        <script src="js/viewport.js"></script>
         <script src="js/primitives/point.js"></script>
         <script src="js/primitives/segment.js"></script>
+        <script src="js/oldInterface.js"></script>
         <script>
-            function addRandomPoint(){
-                const success = graph.tryAddPoint(
-                    new Point(
-                        Math.random() * myCanvas.width,
-                        Math.random() * myCanvas.height
-                    )
-                );
-                context.clearRect(0,0,myCanvas.width,myCanvas.height);
-                graph.draw(context);
-                console.log(success);
-            }
-
-            function removeRandomPoint(){
-                if(graph.points.length == 0){
-                    console.log("No more points to remove");
-                    return ;
-                }
-                const index = Math.floor(Math.random() * graph.points.length);
-                graph.removePoint(graph.points[index]);
-                context.clearRect(0,0,myCanvas.width,myCanvas.height);
-                graph.draw(context);
-            }
-
-            function addRandomSegment(){
-                //added a clause to check if we have enough points
-                if (graph.points.length > 1){
-                    const index1 = Math.floor(Math.random() * graph.points.length);
-                    const index2 = Math.floor(Math.random() * graph.points.length);
-                    const  success = graph.tryAddSegment(
-                            new Segment(graph.points[index1],graph.points[index2])
-                        );
-                    context.clearRect(0,0,myCanvas.width,myCanvas.height);
-                    graph.draw(context);
-                    console.log(success);
-                }else{
-                    console.log("No enough points found");
-                }
-
-            }
-    
-            function removeRandomSegment(){
-                if (graph.segments.length == 0){
-                    console.log("no segments");
-                    return;
-                }
-                const index = Math.floor(Math.random() * graph.segments.length);
-                graph.removeSegment(graph.segments[index]);
-                context.clearRect(0,0,myCanvas.width,myCanvas.height);
-                graph.draw(context);
-            }
-
-            function removeAll(){
-                graph.dispose();
-                context.clearRect(0,0,myCanvas.width,myCanvas.height);
-                graph.draw(context);
-            }
-
+            //canvas dimensions
             myCanvas.width = 600;
             myCanvas.height = 600;
             const context = myCanvas.getContext("2d");
-
-            //testing points
-            const p1 = new Point(200,200);
-            const p2 = new Point(300,220);
-            const p3 = new Point(320,20);
-            const p4 = new Point(30,220);
-            //testing segments
-            const s1 = new Segment(p1, p2);
-            const s2 = new Segment(p1, p4);
-            const s3 = new Segment(p1, p3);
-            const s4 = new Segment (p2,p3);
-            const graph = new Graph([p1,p2,p3,p4],[s1,s2,s3,s4]);
-            const graphEditor = new GraphEditor(myCanvas, graph);
+            const graphString = localStorage.getItem("graph");
+            const graphInfo = graphString ? JSON.parse(graphString) : null;
+            const graph = graphInfo ? Graph.load(graphInfo) : new Graph ();
+            //initializing the view port
+            const viewport = new Viewport(myCanvas);
+            const graphEditor = new GraphEditor(viewport, graph);
 
             animate();
 
             function animate(){
-                context.clearRect(0,0,myCanvas.width,myCanvas.height);
+                viewport.reset();
                 graphEditor.display();
+                //important for scaling
                 requestAnimationFrame(animate);
+            }
+
+            function dispose(){
+                graphEditor.dispose();
+            }
+
+            function save(){
+                localStorage.setItem("graph", JSON.stringify(graph));
             }
         </script>
     </body>
